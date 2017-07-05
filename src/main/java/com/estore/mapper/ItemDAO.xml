@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.estore.dao.ItemDAO">
+	<insert id="insertItem" useGeneratedKeys="true" keyProperty="itemId"
+			parameterType="com.estore.object.Item">
+		INSERT INTO estore_db.item
+		(order_id, price, amount, product_id, product_name)
+		VALUES (#{orderId},#{price},#{amount},#{productId},#{productName});
+	</insert>
+
+	<select id="queryItemByOrderId" resultType="com.estore.object.Item">
+		SELECT * FROM estore_db.item WHERE order_id=#{arg0};
+	</select>
+</mapper>

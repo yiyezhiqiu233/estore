@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.estore.dao.AddressDAO">
+	<select id="queryAllAddressesOfUser" resultType="com.estore.object.Address">
+		SELECT * FROM estore_db.address WHERE user_id=#{arg0};
+	</select>
+
+	<update id="updateUserAddress">
+		UPDATE estore_db.address
+		SET address=#{arg1}
+		WHERE address_id=#{arg0};
+	</update>
+
+	<insert id="insertUserAddress" useGeneratedKeys="true" keyProperty="addressId"
+			parameterType="com.estore.object.Address">
+		INSERT INTO estore_db.address
+		(user_id, address)
+		VALUES (#{userId},#{address});
+	</insert>
+
+	<delete id="deleteAddress">
+		DELETE FROM estore_db.address
+		WHERE address_id=#{arg0};
+	</delete>
+</mapper>
