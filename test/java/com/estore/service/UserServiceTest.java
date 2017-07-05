@@ -31,7 +31,7 @@ public class UserServiceTest extends AbstractTransactionalJUnit4SpringContextTes
 		try {
 			User user = userService.userLogin("admin", "admin");
 			assertNotNull(user);
-			assertEquals(user.getUsername(),"admin");
+			assertEquals(user.getUsername(), "admin");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

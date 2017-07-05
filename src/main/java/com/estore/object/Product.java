@@ -36,7 +36,7 @@ public class Product {
 		productId = -1;
 		name = "未命名";
 		description = "";
-		price = Float.valueOf(0);
+		price = 0f;
 		total = 99;
 		onSale = true;
 		picPath = "";

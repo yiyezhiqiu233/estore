@@ -1,6 +1,6 @@
 function submitPicture(_url) {
-	form = document.getElementById("PictureSubmitForm");
-	var formData = new FormData(form);
+	picSubmitForm = document.getElementById("PictureSubmitForm");
+	var formData = new FormData(picSubmitForm);
 	$.ajax(
 		{
 			async: false,
@@ -8,14 +8,14 @@ function submitPicture(_url) {
 			type: "POST",
 			data: formData,
 			mimeType: "multipart/form-data",
-			dataType:'json',
+			dataType: 'json',
 			contentType: false,
 			cache: false,
 			processData: false,
 			success: function (result) {
-				if(result.err!="")
+				if (result.err !== "")
 					alert(result.err);
-				if (result.stat == 'GOTO') {
+				if (result.stat === 'GOTO') {
 					window.location.href = result.goto;
 				} else {
 					location.reload(true);
@@ -28,14 +28,4 @@ function submitPicture(_url) {
 				alert('ERR.');
 			}
 		});
-}
-
-
-function showUploadPicture() {
-	var r = new FileReader();
-	f = document.getElementById('picture').files[0];
-	r.readAsDataURL(f);
-	r.onload = function (e) {
-		document.getElementById('showUpPic').src = this.result;
-	};
 }

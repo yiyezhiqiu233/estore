@@ -6,6 +6,8 @@ import com.estore.object.Product;
 import com.estore.object.User;
 import com.estore.object.enums.UserType;
 import com.estore.service.OrderService;
+import com.estore.service.ProductService;
+import com.estore.service.UserService;
 import com.estore.utils.CommonFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,7 +29,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @SessionAttributes("user")
 public class SupplierController extends BaseController {
 	@Autowired
-	OrderService orderService;
+	public SupplierController(UserService userService, ProductService productService, OrderService orderService) {
+		super(userService, productService, orderService);
+	}
 
 
 	@RequestMapping(value = "/user/supplier", method = GET)
@@ -79,7 +83,7 @@ public class SupplierController extends BaseController {
 
 		boolean bNewProduct = (product.getProductId() == -1);
 
-		Product oldProduct = null;
+		Product oldProduct;
 		if (!bNewProduct) {
 			oldProduct = productService.getProductById(product.getProductId());
 			if (null == oldProduct) {
@@ -114,7 +118,7 @@ public class SupplierController extends BaseController {
 
 			//update product
 			try {
-				product = productService.updateProduct(oldProduct);
+				productService.updateProduct(oldProduct);
 			} catch (Exception e) {
 				errMsg += e.getMessage();
 			}
@@ -201,9 +205,8 @@ public class SupplierController extends BaseController {
 			String destFilePath = request.getSession().getServletContext().getRealPath("/upload/")
 					+ fileMd5;
 			File destFile = new File(destFilePath);
-			tempFile.renameTo(destFile);
-
-			if (!destFile.exists()) {
+			if (!tempFile.renameTo(destFile) ||
+					!destFile.exists()) {
 				errMsg += "文件上传出错.";
 			}
 
@@ -281,7 +284,7 @@ public class SupplierController extends BaseController {
 		if (null == _orderId || null == operation) {
 			errMsg += "提交参数不完整.";
 		} else {
-			Integer orderId = 0;
+			Integer orderId;
 			Order order = null;
 			try {
 				orderId = Integer.valueOf(_orderId);

@@ -17,7 +17,7 @@ function updateProduct(id) {
 		contentType: 'application/json;charset=UTF-8',
 		success: function (msg) {
 			alert(msg.err + msg.acc);
-			if (msg.stat == 'GOTO') {
+			if (msg.stat === 'GOTO') {
 				window.location.href = msg.goto;
 			} else {
 				location.reload(true);
@@ -27,15 +27,13 @@ function updateProduct(id) {
 }
 
 function deleteSelectedProducts() {
-	var id_list = new Array();
+	var id_list = [];
 
 	var inputs = document.getElementsByTagName("input");
 	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].type == 'checkbox' && !inputs[i].disabled
-			&& (inputs[i].id.indexOf('ck_product') >= 0)) {
-			if (inputs[i].checked) {
-				id_list.push(parseInt(inputs[i].id.substr(11)));
-			}
+		if (inputs[i].type === 'checkbox' && !inputs[i].disabled
+			&& (inputs[i].id.indexOf('ck_product') >= 0) && inputs[i].checked) {
+			id_list.push(parseInt(inputs[i].id.substr(11)));
 		}
 	}
 	if (id_list.length < 1) {
@@ -63,7 +61,7 @@ function deleteSelectedProducts() {
 function selectAllProducts() {
 	var inputs = document.getElementsByTagName("input");
 	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].type == 'checkbox' && !inputs[i].disabled
+		if (inputs[i].type === 'checkbox' && !inputs[i].disabled
 			&& (inputs[i].id.indexOf('ck_product') >= 0)) {
 			inputs[i].checked = true;
 		}
@@ -73,17 +71,17 @@ function selectAllProducts() {
 function revertSelectedProducts() {
 	var inputs = document.getElementsByTagName("input");
 	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].type == 'checkbox' && !inputs[i].disabled
+		if (inputs[i].type === 'checkbox' && !inputs[i].disabled
 			&& (inputs[i].id.indexOf('ck_product') >= 0)) {
 			inputs[i].checked = !inputs[i].checked;
 		}
 	}
 }
 
-function processOrder(orderId,op){
-	var inputs={};
-	inputs['orderId']=orderId;
-	inputs['operation']=op;
+function processOrder(orderId, op) {
+	var inputs = {};
+	inputs['orderId'] = orderId;
+	inputs['operation'] = op;
 
 	$.ajax({
 		async: false,

@@ -14,14 +14,13 @@ public class GlobalControllerAdvice {
 
 	@ExceptionHandler(MaxUploadSizeExceededException.class)
 	public ModelAndView exception(Exception e) {
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<String, String>();
 
 		map.put("stat", "ERROR");
 		map.put("err", "上传文件大小超过限制.");
 		map.put("acc", "");
 		map.put("goto", "");
 
-		ModelAndView mv = new ModelAndView(new MappingJackson2JsonView(), map);
-		return mv;
+		return new ModelAndView(new MappingJackson2JsonView(), map);
 	}
 }

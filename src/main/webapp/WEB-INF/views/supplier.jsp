@@ -2,15 +2,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="tagform" uri="http://www.springframework.org/tags/form" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>供应商</title>
-	<link rel="stylesheet" type="text/css" href="/css/default.css">
-	<link rel="stylesheet" href="/js/bootstrap/css/bootstrap.min.css">
-	<script src="/js/jquery-3.2.1.min.js"></script>
-	<script src="/js/bootstrap/js/bootstrap.min.js"></script>
-	<script src="/js/user.js"></script>
-	<script src="/js/supplier.js"></script>
+	<link rel="stylesheet" href="<c:url value="/js/lib/bootstrap/css/bootstrap.min.css"/>">
+	<script type="text/javascript" src="<c:url value="/js/lib/jquery-3.2.1.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/lib/bootstrap/js/bootstrap.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/user.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/supplier.js"/>"></script>
 </head>
 <body>
 
@@ -18,13 +18,13 @@
 	<li role="presentation"><a href="#top_setting" data-toggle="tab">供应商-supplier</a></li>
 	<li role="presentation" class="active"><a href="#top_product" data-toggle="tab">产品</a></li>
 	<li role="presentation"><a href="#top_order" data-toggle="tab">订单</a></li>
-	<li><a href="/logout">退出</a></li>
+	<li><a href="<c:url value="/logout"/>">退出</a></li>
 </ul>
 
 <div class="tab-content">
 	<div id="top_product" class="tab-pane fade in active" align="center">
 		<br/>
-		<a class="btn btn-default" href="/user/supplier/newProduct">添加新产品</a>
+		<a class="btn btn-default" href="<c:url value="/user/supplier/newProduct"/>">添加新产品</a>
 		<button type="button" class="btn btn-default" onclick="deleteSelectedProducts();">删除所选产品</button>
 		<button type="button" class="btn btn-default" onclick="selectAllProducts();">全选</button>
 		<button type="button" class="btn btn-default" onclick="revertSelectedProducts();">反选</button>
@@ -43,29 +43,35 @@
 			<c:forEach var="product" items="${productList}">
 				<tr>
 					<td><input type="checkbox" id="ck_product_${product.productId}"
-							   name="ck_product_${product.productId}"/></td>
+							   name="ck_product_${product.productId}" title=""/></td>
 					<td><input class="form-control" id="productId_${product.productId}" value="${product.productId}"
-							   readonly/></td>
-					<td><input class="form-control" id="name_${product.productId}" value="${product.name}"/></td>
-					<td><input class="form-control" id="price_${product.productId}" value="${product.price}"/></td>
-					<td><input class="form-control" id="total_${product.productId}" value="${product.total}"/></td>
+							   readonly title=""/></td>
+					<td><input class="form-control" id="name_${product.productId}" value="${product.name}" title=""/>
+					</td>
+					<td><input class="form-control" id="price_${product.productId}" value="${product.price}" title=""/>
+					</td>
+					<td><input class="form-control" id="total_${product.productId}" value="${product.total}" title=""/>
+					</td>
 					<td>
 						<c:choose>
-						<c:when test="${product.onSale==true}">
-							<input type="checkbox" id="on_sale_${product.productId}" value="${product.onSale}"
-								   checked="checked"/>
-						</c:when>
-						<c:otherwise>
-						<input type="checkbox" id="on_sale_${product.productId}" value="${product.onSale}"/></td>
-					</c:otherwise>
-					</c:choose></td>
+							<c:when test="${product.onSale==true}">
+								<input type="checkbox" id="on_sale_${product.productId}" value="${product.onSale}"
+									   checked="checked" title=""/>
+							</c:when>
+							<c:otherwise>
+								<input type="checkbox" id="on_sale_${product.productId}" value="${product.onSale}"
+									   title=""/>
+							</c:otherwise>
+						</c:choose>
+					</td>
 					<td><input type="button" class="btn btn-default" onclick="updateProduct(${product.productId})"
 							   value="update"></td>
 					<td>
 						<li role="presentation" class="input-group"><a
 								href="/user/supplier/product/${product.productId}">详细信息</a></li>
 					</td>
-					<td><input id="description_${product.productId}" value="${product.description}" hidden></td>
+					<td><input id="description_${product.productId}" value="${product.description}" hidden title="">
+					</td>
 				</tr>
 			</c:forEach>
 		</table>
@@ -98,8 +104,10 @@
 						<td>${order.address}</td>
 						<th>${order.totalPrice}</th>
 						<th>
-							<button><span class="glyphicon glyphicon-ok" onclick='processOrder("${order.orderId}","confirm")'></span></button>
-							<button class="glyphicon glyphicon-remove" onclick='processOrder("${order.orderId}","reject")'></button>
+							<button><span class="glyphicon glyphicon-ok"
+										  onclick='processOrder("${order.orderId}","confirm")'></span></button>
+							<button class="glyphicon glyphicon-remove"
+									onclick='processOrder("${order.orderId}","reject")'></button>
 						</th>
 					</tr>
 					<tr>
@@ -184,15 +192,15 @@
 		<table class="table">
 			<tr>
 				<td align="right">旧密码:</td>
-				<td><input class="form-control" type="password" id="old_password" autocomplete="off"/></td>
+				<td><input class="form-control" type="password" id="old_password" autocomplete="off" title=""/></td>
 			</tr>
 			<tr>
 				<td align="right">新密码:</td>
-				<td><input class="form-control" type="password" id="new_password" autocomplete="off"/></td>
+				<td><input class="form-control" type="password" id="new_password" autocomplete="off" title=""/></td>
 			</tr>
 			<tr>
 				<td align="right">重输密码:</td>
-				<td><input class="form-control" type="password" id="new_password2" autocomplete="off"/></td>
+				<td><input class="form-control" type="password" id="new_password2" autocomplete="off" title=""/></td>
 			</tr>
 			<tr>
 				<td align="right"></td>

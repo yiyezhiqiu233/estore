@@ -24,29 +24,28 @@ import static org.junit.Assert.assertNull;
 @Transactional
 public class ItemDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 	@Autowired
-	private SqlSessionFactoryBean sqlSessionFactory;
+	private ItemDAO itemDAO;
+	private Item i0 = new Item();
 	@Autowired
-	ItemDAO itemDAO;
+	private SqlSessionFactoryBean sqlSessionFactory;
 
-	Item i0=new Item();
-
-	void init(){
+	private void init() {
 		i0.setAmount(5);
 		i0.setOrderId(87139872);
-		i0.setPrice(new Float(100));
+		i0.setPrice(100f);
 		i0.setProductId(33);
 		i0.setProductName("HIHI123");
 	}
 
-	void cmpItem(Item a,Item b){
-		if(null==a){
+	private void cmpItem(Item a, Item b) {
+		if (null == a) {
 			assertNull(b);
 		}
-		assertEquals(a.getAmount(),b.getAmount());
-		assertEquals(a.getItemId(),b.getItemId());
-		assertEquals(a.getOrderId(),b.getOrderId());
-		assertEquals(a.getPrice(),b.getPrice());
-		assertEquals(a.getProductId(),b.getProductId());
+		assertEquals(a.getAmount(), b.getAmount());
+		assertEquals(a.getItemId(), b.getItemId());
+		assertEquals(a.getOrderId(), b.getOrderId());
+		assertEquals(a.getPrice(), b.getPrice());
+		assertEquals(a.getProductId(), b.getProductId());
 	}
 
 	@Test
@@ -56,12 +55,12 @@ public class ItemDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 	}
 
 	@Test
-	public void testInsertAmdQueryItem() throws Exception{
+	public void testInsertAmdQueryItem() throws Exception {
 		init();
-		int res=itemDAO.insertItem(i0);
-		assertEquals(res,1);
+		int res = itemDAO.insertItem(i0);
+		assertEquals(res, 1);
 
-		List<Item> _i0=itemDAO.queryItemByOrderId(i0.getOrderId());
-		cmpItem(i0,_i0.get(0));
+		List<Item> _i0 = itemDAO.queryItemByOrderId(i0.getOrderId());
+		cmpItem(i0, _i0.get(0));
 	}
 }

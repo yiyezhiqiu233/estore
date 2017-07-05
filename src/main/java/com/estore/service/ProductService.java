@@ -24,5 +24,5 @@ public interface ProductService {
 
 	String validateProduct(Product m_product, String[] properties);
 
-	public List<Product> searchOnSaleProducts(String keyword) throws Exception;
+	List<Product> searchOnSaleProducts(String keyword) throws Exception;
 }

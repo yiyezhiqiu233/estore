@@ -2,6 +2,10 @@ package com.estore.controller;
 
 import com.estore.object.User;
 import com.estore.object.enums.UserType;
+import com.estore.service.OrderService;
+import com.estore.service.ProductService;
+import com.estore.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +22,10 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @SessionAttributes("user")
 public class AdminController extends BaseController {
+	@Autowired
+	public AdminController(UserService userService, ProductService productService, OrderService orderService) {
+		super(userService, productService, orderService);
+	}
 
 	@RequestMapping(value = "/user/admin", method = GET)
 	public String showDefaultUserPage(
@@ -28,7 +36,7 @@ public class AdminController extends BaseController {
 			model.addAttribute("m_user_id", -1);
 			model.addAttribute("err", "");
 			model.addAttribute("acc", "");
-			List<User> userList = null;
+			List<User> userList;
 			try {
 				userList = userService.listAllUsers();
 			} catch (Exception e) {
@@ -53,7 +61,6 @@ public class AdminController extends BaseController {
 		if (null == user || null == user.getUserType() || user.getUserType() != UserType.ADMIN)
 			return "not_found";
 
-		MANAGE:
 		try {
 			//userExists
 			User m_u = userService.getUserById(m_userId);
@@ -66,10 +73,10 @@ public class AdminController extends BaseController {
 
 			//change password
 			if ((null != m_password1 && null != m_password2) &&
-					("" != m_password1 || "" != m_password2)) {
-				if ("" == m_password1) {
+					(!"".equals(m_password1) || !"".equals(m_password2))) {
+				if ("".equals(m_password1)) {
 					errMsg += "新密码为空.";
-				} else if ("" == m_password2) {
+				} else if ("".equals(m_password2)) {
 					errMsg += "重输密码为空.";
 				} else if (!m_password1.equals(m_password2)) {
 					errMsg += "密码不一致.";
@@ -88,24 +95,23 @@ public class AdminController extends BaseController {
 			}
 		} catch (Exception e) {
 			errMsg = e.getMessage();
-		} finally {
-			//add messages
-			model.addAttribute("m_user_id", m_userId);
-			model.addAttribute("err", errMsg);
-			if (accMsg.equals("") && errMsg.equals(""))
-				accMsg = "没有更改项.";
-			model.addAttribute("acc", accMsg);
-
-			//show all users again
-			List<User> userList = null;
-			try {
-				userList = userService.listAllUsers();
-			} catch (Exception e) {
-				return "/error";
-			}
-			model.addAttribute("userList", userList);
-			return "admin";
 		}
+		//add messages
+		model.addAttribute("m_user_id", m_userId);
+		model.addAttribute("err", errMsg);
+		if (accMsg.equals("") && errMsg.equals(""))
+			accMsg = "没有更改项.";
+		model.addAttribute("acc", accMsg);
+
+		//show all users again
+		List<User> userList;
+		try {
+			userList = userService.listAllUsers();
+		} catch (Exception e) {
+			return "/error";
+		}
+		model.addAttribute("userList", userList);
+		return "admin";
 	}
 
 	@RequestMapping(value = "/user/admin/addNewUser")
@@ -125,17 +131,17 @@ public class AdminController extends BaseController {
 			String m_password2 = (String) map.get("password2");
 
 			//password1
-			if (null == m_username || "" == m_username) {
+			if (null == m_username || "".equals(m_username)) {
 				errMsg += "用户名为空.";
 				break ADD_USER;
 			}
 			//password1
-			if (null == m_password1 || "" == m_password1) {
+			if (null == m_password1 || "".equals(m_password1)) {
 				errMsg += "新密码为空.";
 				break ADD_USER;
 			}
 			//password2
-			if (null == m_password2 || "" == m_password2) {
+			if (null == m_password2 || "".equals(m_password2)) {
 				errMsg += "重输密码为空.";
 				break ADD_USER;
 			}

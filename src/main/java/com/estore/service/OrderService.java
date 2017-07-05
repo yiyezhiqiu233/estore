@@ -11,7 +11,7 @@ import java.util.List;
 
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public interface OrderService {
-	Order generateNewOrder(
+	void generateNewOrder(
 			int userId,
 			HashMap<Product, Integer> products,
 			String receiver,

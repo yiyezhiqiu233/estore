@@ -1,28 +1,28 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>${product.name}</title>
-	<link rel="stylesheet" type="text/css" href="/css/default.css">
-	<link rel="stylesheet" href="/js/bootstrap/css/bootstrap.min.css">
-	<script src="/js/jquery-3.2.1.min.js"></script>
-	<script src="/js/supplier.js"></script>
-	<script src="/js/picture_submit.js"></script>
+	<link rel="stylesheet" href="<c:url value="/js/lib/bootstrap/css/bootstrap.min.css"/>">
+	<script type="text/javascript" src="<c:url value="/js/lib/jquery-3.2.1.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/lib/bootstrap/js/bootstrap.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/supplier.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/picture_submit.js"/>"></script>
 </head>
 <body style="padding-top: 56px;">
 
 <nav class="navbar navbar-default navbar-fixed-top">
 	<div class="navbar-header">
-		<a href="/user/supplier/" class="btn btn-link">返回</a>
+		<a href="<c:url value="/user/supplier/"/>" class="btn btn-link">返回</a>
 		<a class="btn btn-lg" onclick="updateProduct(${product.productId})">
 			<c:choose>
 				<c:when test="${action=='add'}">添加</c:when>
 				<c:when test="${action=='update'}">更新</c:when>
-				<c:otherwise></c:otherwise>
 			</c:choose> ${product.name} 产品信息
 		</a>
 		<c:if test="${action=='update'}">
-			<a class="btn btn-lg" href="/user/supplier/newProduct">添加更多产品</a>
+			<a class="btn btn-lg" href="<c:url value="/user/supplier/newProduct"/>">添加更多产品</a>
 		</c:if>
 	</div>
 </nav>
@@ -45,26 +45,25 @@
 				</form>
 			</td>
 		</tr>
-		</tr>
 		<tr>
 			<td align="right" style="vertical-align: middle">名称</td>
 			<td>
 				<input class="form-control" id="name_${product.productId}" value="${product.name}"
-					   style="width: 384px;"/>
+					   style="width: 384px;" title=""/>
 			</td>
 		</tr>
 		<tr>
 			<td align="right" style="vertical-align: middle">价格</td>
 			<td>
 				<input class="form-control" id="price_${product.productId}" value="${product.price}"
-					   style="width: 384px;"/>
+					   style="width: 384px;" title=""/>
 			</td>
 		</tr>
 		<tr>
 			<td align="right" style="vertical-align: middle">剩余量</td>
 			<td>
 				<input class="form-control" id="total_${product.productId}" value="${product.total}"
-					   style="width: 384px;"/>
+					   style="width: 384px;" title=""/>
 			</td>
 		</tr>
 		<tr>
@@ -73,10 +72,11 @@
 				<c:choose>
 					<c:when test="${product.onSale==true}">
 						<input type="checkbox" id="on_sale_${product.productId}" value="${product.onSale}"
-							   checked="checked"/>
+							   checked="checked" title=""/>
 					</c:when>
 					<c:otherwise>
-						<input type="checkbox" id="on_sale_${product.productId}" value="${product.onSale}"/>
+						<input type="checkbox" id="on_sale_${product.productId}" value="${product.onSale}"
+							   title=""/>
 					</c:otherwise>
 				</c:choose>
 			</td>
@@ -85,7 +85,8 @@
 			<td align="right" style="vertical-align: middle">描述</td>
 			<td>
 				<textarea class="form-control" id="description_${product.productId}"
-						  style="width: 384px; height: 256px; text-align: left">${product.description}</textarea>
+						  style="width: 384px; height: 256px; text-align: left"
+						  title="">${product.description}</textarea>
 			</td>
 		</tr>
 	</table>

@@ -7,6 +7,7 @@ import com.estore.object.User;
 import com.estore.object.enums.UserType;
 import com.estore.service.OrderService;
 import com.estore.service.ProductService;
+import com.estore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +23,9 @@ import java.util.Map;
 @SessionAttributes({"user", "cart"})
 public class ProductController extends BaseController {
 	@Autowired
-	private ProductService productService;
-	@Autowired
-	private OrderService orderService;
+	public ProductController(UserService userService, ProductService productService, OrderService orderService) {
+		super(userService, productService, orderService);
+	}
 
 	@GetMapping(value = "/product/{productId}")
 	public String showProduct(
@@ -181,59 +181,59 @@ public class ProductController extends BaseController {
 		if (null == user || user.getUserType() != UserType.NORMAL) {
 			errMsg = "权限不足.";
 		} else {
-			String receiver = (String)map.get("receiver");
-			String address = (String)map.get("address");
-			String telephone = (String)map.get("telephone");
-			String password = (String)map.get("password");
+			String receiver = (String) map.get("receiver");
+			String address = (String) map.get("address");
+			String telephone = (String) map.get("telephone");
+			String password = (String) map.get("password");
 
-			if (null == receiver || "" == receiver) {
+			if (null == receiver || "".equals(receiver)) {
 				errMsg += "请输入收货人.";
-			} else if (null == address || "" == address) {
+			} else if (null == address || "".equals(address)) {
 				errMsg += "请输入地址.";
-			} else if (null == telephone || "" == telephone) {
+			} else if (null == telephone || "".equals(telephone)) {
 				errMsg += "请输入联系电话.";
 			} else if (null == password || "" == password) {
 				errMsg += "请输入密码.";
-			}else {
+			} else {
 				try {
 					//validate password
 					user = userService.userLogin(user.getUsername(), password);
-				}catch (Throwable e) {
-					errMsg += "UserService出错:"+e.getMessage();
+				} catch (Throwable e) {
+					errMsg += "UserService出错:" + e.getMessage();
 					return generateModelAndViewByMsg();
 				}
 
 				//get products
-				HashMap<Product,Integer> productList=new HashMap<Product, Integer>();
-				if(null==map.get("products")){
-					errMsg+="产品信息缺失.";
+				HashMap<Product, Integer> productList = new HashMap<Product, Integer>();
+				if (null == map.get("products")) {
+					errMsg += "产品信息缺失.";
 					return generateModelAndViewByMsg();
 				}
-				HashMap<String,String>hm=(HashMap<String,String>)map.get("products");
-				if(null==hm){
-					errMsg+="产品信息缺失.";
+				HashMap<String, String> hm = (HashMap<String, String>) map.get("products");
+				if (null == hm) {
+					errMsg += "产品信息缺失.";
 					return generateModelAndViewByMsg();
 				}
-				if(hm.size()<1){
-					errMsg+="未选择购买任何产品.";
+				if (hm.size() < 1) {
+					errMsg += "未选择购买任何产品.";
 					return generateModelAndViewByMsg();
 				}
-				for(String _productId:hm.keySet()){
-					int productId=Integer.valueOf(_productId);
-					Product p=productService.getProductById(productId);
-					if(null==p){
-						errMsg+="产品信息错误.";
+				for (String _productId : hm.keySet()) {
+					int productId = Integer.valueOf(_productId);
+					Product p = productService.getProductById(productId);
+					if (null == p) {
+						errMsg += "产品信息错误.";
 						return generateModelAndViewByMsg();
 					}
-					String _amount=hm.get(_productId);
-					Integer amount=Integer.valueOf(_amount);
-					if(p.getTotal()<amount){
-						errMsg+="商品 "+p.getName()+" 库存不足.";
+					String _amount = hm.get(_productId);
+					Integer amount = Integer.valueOf(_amount);
+					if (p.getTotal() < amount) {
+						errMsg += "商品 " + p.getName() + " 库存不足.";
 						return generateModelAndViewByMsg();
 					}
-					productList.put(p,amount);
+					productList.put(p, amount);
 					//remove from cart
-					if(cart.getProductHashMap().containsKey(p)){
+					if (cart.getProductHashMap().containsKey(p)) {
 						cart.getProductHashMap().remove(p);
 					}
 				}
@@ -246,8 +246,8 @@ public class ProductController extends BaseController {
 					errMsg += e.getMessage();
 					return generateModelAndViewByMsg();
 				}
-				accMsg+="订单提交成功.";
-				gotoMsg="/user/"+user.getUsername()+"/orders";
+				accMsg += "订单提交成功.";
+				gotoMsg = "/user/" + user.getUsername() + "/orders";
 			}
 		}
 		return generateModelAndViewByMsg();

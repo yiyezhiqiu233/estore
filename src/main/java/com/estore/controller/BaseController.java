@@ -1,6 +1,7 @@
 package com.estore.controller;
 
 import com.estore.object.User;
+import com.estore.service.OrderService;
 import com.estore.service.ProductService;
 import com.estore.service.UserService;
 import com.google.common.base.Throwables;
@@ -15,30 +16,32 @@ import java.util.Map;
 
 @Controller
 public class BaseController {
-	protected @Autowired
-	UserService userService;
-	protected @Autowired
-	ProductService productService;
+	final UserService userService;
+	final ProductService productService;
+	final OrderService orderService;
 
-	protected String errMsg = "";
-	protected String accMsg = "";
-	protected String gotoMsg = "";
+	String errMsg = "";
+	String accMsg = "";
+	String gotoMsg = "";
+
+	@Autowired
+	public BaseController(UserService userService, ProductService productService, OrderService orderService) {
+		this.userService = userService;
+		this.productService = productService;
+		this.orderService = orderService;
+	}
 
 	//only validate password
-	protected boolean validateUserPassword(User m_u, String m_password) {
+	private boolean validateUserPassword(User m_u, String m_password) {
 		//validate password
 		m_u.setPassword(m_password);
 
 		errMsg = userService.validatePassword(m_u);
 
-		if (!errMsg.equals("")) {
-			return false;
-		} else {
-			return true;
-		}
+		return errMsg.equals("");
 	}
 
-	protected User checkAndUpdatePassword(User user, String old_pwd, String new_pwd) {
+	User checkAndUpdatePassword(User user, String old_pwd, String new_pwd) {
 		User temp = new User();
 		//validate new password
 		if (!validateUserPassword(temp, new_pwd)) {
@@ -66,13 +69,13 @@ public class BaseController {
 		}
 	}
 
-	protected void initMsg() {
+	void initMsg() {
 		errMsg = accMsg = gotoMsg = "";
 	}
 
-	protected ModelAndView generateModelAndViewByMsg() {
-		Map map = new HashMap();
-		String status = "";
+	ModelAndView generateModelAndViewByMsg() {
+		Map<String, String> map = new HashMap<String, String>();
+		String status;
 		if (!gotoMsg.equals("")) {
 			status = "GOTO";
 		} else if (errMsg.equals("") && accMsg.equals("")) {
@@ -87,19 +90,6 @@ public class BaseController {
 		map.put("acc", accMsg);
 		map.put("goto", gotoMsg);
 
-		ModelAndView mv = new ModelAndView(new MappingJackson2JsonView(), map);
-		return mv;
-	}
-
-
-	private String getExceptionMessage(
-			Throwable throwable,
-			Integer statusCode) {
-		if (throwable != null) {
-			return Throwables.getRootCause(throwable).getMessage();
-		}
-		HttpStatus httpStatus;
-		httpStatus = HttpStatus.valueOf(statusCode);
-		return httpStatus.getReasonPhrase();
+		return new ModelAndView(new MappingJackson2JsonView(), map);
 	}
 }

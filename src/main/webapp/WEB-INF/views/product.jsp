@@ -1,14 +1,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="C" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>${product.name}</title>
-	<link rel="stylesheet" type="text/css" href="/css/default.css">
-	<link rel="stylesheet" href="/js/bootstrap/css/bootstrap.min.css">
-	<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="/js/bootstrap/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/js/product.js"></script>
+	<link rel="stylesheet" href="<c:url value="/js/lib/bootstrap/css/bootstrap.min.css"/>">
+	<script type="text/javascript" src="<c:url value="/js/lib/jquery-3.2.1.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/lib/bootstrap/js/bootstrap.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/product.js"/>"></script>
 </head>
 <body onload="max_amount=${product.total};" style="text-align: center">
 
@@ -16,7 +16,7 @@
 	<li role="presentation"><a href="/user/${user.username}/profile">${user.username}</a></li>
 	<li role="presentation"><a href="/user/${user.username}">商场</a></li>
 	<li role="presentation"><a href="/user/${user.username}/orders">订单</a></li>
-	<li><a href="/logout">退出</a></li>
+	<li><a href="<c:url value="/logout"/>">退出</a></li>
 
 	<li role="presentation" class="dropdown">
 		<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
@@ -25,17 +25,17 @@
 		</a>
 		<ul class="dropdown-menu" id="cart">
 			<c:forEach var="p" items="${cart.productHashMap}">
-				<div class="btn-group btn-group-justified" role="group">
+				<div class="btn-group btn-group-justified">
 					<a class="input-group-addon" href="/product/${p.key.productId}">${p.key.name}
 						×${p.value.intValue()}</a>
 					<a class="input-group-addon" onclick="removeProductFromCart(${p.key.productId})">删除</a>
 				</div>
 			</c:forEach>
-			<div class="btn-group-justified" role="group">
-				<li class="btn-group" role="group">
+			<div class="btn-group-justified">
+				<li class="btn-group">
 					<button type="button" class="btn btn-default" onclick="clearCart()">清空</button>
 				</li>
-				<li class="btn-group" role="group">
+				<li class="btn-group">
 					<button type="button" class="btn btn-default" onclick="trySubmitCart()">结算</button>
 				</li>
 			</div>
@@ -44,7 +44,7 @@
 </ul>
 <div class="alert alert-warning" id="message" style="display: none;"></div>
 
-<input id="productId" value="${product.productId}" hidden>
+<input id="productId" value="${product.productId}" hidden title="">
 <c:if test="${product.onSale=='false'}">
 	<div style="height: 32px">
 		<label class="alert alert-danger">该商品暂时下架了！</label>
@@ -75,7 +75,7 @@
 							<span class="input-group-btn"><button class="btn btn-default" type="button"
 																  onclick="minus()">-</button></span>
 					<input type="text" id="amount" class="form-control" value="0" onkeyup="checkNum();"
-						   onafterpaste="checkNum();"/>
+						   title=""/>
 					<span class="input-group-btn"><button class="btn btn-default" type="button"
 														  onclick="plus()">+</button></span>
 
@@ -91,7 +91,6 @@
 				</div>
 			</div>
 			<br/><br/>
-			</div><!-- /input-group -->
 			<div><span class="label label-default">商品描述</span><br/><br/>
 				${product.description}
 			</div>

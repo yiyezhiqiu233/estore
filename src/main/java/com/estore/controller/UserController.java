@@ -3,6 +3,8 @@ package com.estore.controller;
 import com.estore.object.*;
 import com.estore.object.enums.UserType;
 import com.estore.service.OrderService;
+import com.estore.service.ProductService;
+import com.estore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +29,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @SessionAttributes({"user", "cart"})
 public class UserController extends BaseController {
 	@Autowired
-	OrderService orderService;
+	public UserController(UserService userService, ProductService productService, OrderService orderService) {
+		super(userService, productService, orderService);
+	}
 
 	@GetMapping(value = {"/", "/login"})
 	public String showLoginForm(Model model) {
@@ -41,8 +45,8 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/logout")
 	public String logoutAndLogin(HttpSession session, Model model) {
 		session.invalidate();
-		if(model.containsAttribute("user")) model.asMap().remove("user");
-		if(model.containsAttribute("cart")) model.asMap().remove("cart");
+		if (model.containsAttribute("user")) model.asMap().remove("user");
+		if (model.containsAttribute("cart")) model.asMap().remove("cart");
 		return "redirect:/login";
 	}
 
@@ -76,7 +80,7 @@ public class UserController extends BaseController {
 			@ModelAttribute Cart cart,
 			Model model) {
 		if (null != user &&
-				username == user.getUsername() &&
+				username.equals(user.getUsername()) &&
 				null != user.getUserType() &&
 				user.getUserType() == UserType.NORMAL) {
 			List<Product> productList2 = null;
@@ -99,12 +103,12 @@ public class UserController extends BaseController {
 			@ModelAttribute Cart cart,
 			@RequestParam String keyword,
 			Model model) throws UnsupportedEncodingException {
-		if (null != user && username == user.getUsername() &&
+		if (null != user && username.equals(user.getUsername()) &&
 				null != user.getUserType() && user.getUserType() == UserType.NORMAL) {
 
 			if (null != keyword)
 				keyword = new String(keyword.getBytes("ISO-8859-1"), "UTF-8");
-			List<Product> productList2 = null;
+			List<Product> productList2;
 			try {
 				productList2 = productService.listAllOnsaleProducts(keyword);
 			} catch (Exception e) {
@@ -147,10 +151,8 @@ public class UserController extends BaseController {
 			if (null != post_order_id) {
 				try {
 					Integer orderId = Integer.valueOf(post_order_id);
-					boolean found = false;
 					for (Order order : all_orders) {
 						if (orderId.equals(order.getOrderId())) {
-							found = true;
 							filtered_orders.add(order);
 						}
 					}
@@ -199,9 +201,8 @@ public class UserController extends BaseController {
 			errMsg += "用户校验失败.";
 			gotoMsg = "/logout";
 		} else {
-			User u = null;
 			try {
-				u = userService.getUserById(user.getUserId());
+				userService.getUserById(user.getUserId());
 			} catch (Exception e) {
 				errMsg += "用户校验失败.";
 				gotoMsg = "/logout";
@@ -214,17 +215,17 @@ public class UserController extends BaseController {
 				String new_pwd2 = (String) map.get("new_password2");
 
 				//password old
-				if (null == old_pwd || "" == old_pwd) {
+				if (null == old_pwd || "".equals(old_pwd)) {
 					errMsg += "旧密码为空.";
 					break EDIT_PWD;
 				}
 				//password1
-				if (null == new_pwd || "" == new_pwd) {
+				if (null == new_pwd || "".equals(new_pwd)) {
 					errMsg += "新密码为空.";
 					break EDIT_PWD;
 				}
 				//password2
-				if (null == new_pwd2 || "" == new_pwd2) {
+				if (null == new_pwd2 || "".equals(new_pwd2)) {
 					errMsg += "重输密码为空.";
 					break EDIT_PWD;
 				}
@@ -239,7 +240,7 @@ public class UserController extends BaseController {
 					model.addAttribute("user", temp);
 				}
 			} catch (Exception e) {
-				errMsg+=e.getMessage();
+				errMsg += e.getMessage();
 			}
 		}
 		return generateModelAndViewByMsg();
@@ -257,11 +258,10 @@ public class UserController extends BaseController {
 			errMsg += "用户校验失败.";
 			gotoMsg = "/logout";
 		} else {
-			User u = null;
 			try {
-				u = userService.getUserById(user.getUserId());
+				userService.getUserById(user.getUserId());
 			} catch (Exception e) {
-				errMsg += "用户校验失败.";
+				errMsg += e.getMessage();
 				gotoMsg = "/logout";
 				return generateModelAndViewByMsg();
 			}
@@ -300,7 +300,7 @@ public class UserController extends BaseController {
 					}
 				}
 			} catch (Exception ex) {
-				System.out.println(ex);
+				errMsg += ex.getMessage();
 			}
 		}
 		return generateModelAndViewByMsg();

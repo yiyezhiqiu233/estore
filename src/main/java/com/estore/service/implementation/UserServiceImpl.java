@@ -20,12 +20,16 @@ import java.util.Set;
 @Service("userService")
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class UserServiceImpl implements UserService {
+	private final UserDAO userDAO;
+	private final AddressDAO addressDAO;
+	private final LocalValidatorFactoryBean validator;
+
 	@Autowired
-	UserDAO userDAO;
-	@Autowired
-	AddressDAO addressDAO;
-	@Autowired
-	private LocalValidatorFactoryBean validator;
+	public UserServiceImpl(UserDAO userDAO, AddressDAO addressDAO, LocalValidatorFactoryBean validator) {
+		this.userDAO = userDAO;
+		this.addressDAO = addressDAO;
+		this.validator = validator;
+	}
 
 	public User userLogin(String username, String password) throws Exception {
 		User user = new User();
@@ -70,7 +74,7 @@ public class UserServiceImpl implements UserService {
 		u.setUsername(username);
 		//validate username
 		String errMsg = validateUsername(u);
-		if (errMsg != null & !errMsg.equals("")) {
+		if (errMsg != null && !errMsg.equals("")) {
 			throw new Exception(errMsg);
 		}
 
@@ -91,10 +95,7 @@ public class UserServiceImpl implements UserService {
 		u.setPassword(password);
 
 		String errMsg = validatePassword(u);
-
-		if (errMsg != null & !errMsg.equals("")) {
-			throw new Exception(errMsg);
-		}
+		if (errMsg != null && !errMsg.equals("")) throw new Exception(errMsg);
 
 		String salt = PasswordEncoder.getRandomString(32);
 		password = PasswordEncoder.encodePassword(password, salt);
@@ -106,19 +107,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public User updatePassword(String username, String password) throws Exception {
-		try {
-			User u = userLogin(username, password);
-			u = updatePasswordById(u.getUserId(), password);
-			return u;
-		} catch (Exception ex) {
-			throw ex;
-		}
+		User u = userLogin(username, password);
+		u = updatePasswordById(u.getUserId(), password);
+		return u;
 	}
 
 	public boolean deleteUserById(int id) {
 		//exists?
 		User u = userDAO.queryUserById(id);
-		if (null == u) return false;
 		//can not del admin/supplier
 		if (null == u
 				|| u.getUserType() == UserType.ADMIN
@@ -149,7 +145,7 @@ public class UserServiceImpl implements UserService {
 		//insert
 		String salt = PasswordEncoder.getRandomString(32);
 		password = PasswordEncoder.encodePassword(password, salt);
-		int result = userDAO.insertUser(username, password, salt, 2);
+		int result = userDAO.insertUser(username, password, salt, UserType.NORMAL.toInt());
 		if (result != 1) throw new Exception("新建用户失败.");
 		user = userDAO.queryUserByUsername(username);
 		if (null == user) throw new Exception("新建用户失败.");
@@ -159,21 +155,21 @@ public class UserServiceImpl implements UserService {
 	public String validateUsername(User m_u) {
 		Set<ConstraintViolation<User>> errors = validator.getValidator().validateProperty(m_u, "username");
 
-		String errMsg = "";
+		StringBuilder errMsg = new StringBuilder();
 		for (ConstraintViolation<User> err : errors) {
-			errMsg += err.getMessage();
+			errMsg.append(err.getMessage());
 		}
-		return errMsg;
+		return errMsg.toString();
 	}
 
 	public String validatePassword(User m_u) {
 		Set<ConstraintViolation<User>> errors = validator.getValidator().validateProperty(m_u, "password");
 
-		String errMsg = "";
+		StringBuilder errMsg = new StringBuilder();
 		for (ConstraintViolation<User> err : errors) {
-			errMsg += err.getMessage();
+			errMsg.append(err.getMessage());
 		}
-		return errMsg;
+		return errMsg.toString();
 	}
 
 	public String validateUser(User m_u) {
@@ -181,11 +177,11 @@ public class UserServiceImpl implements UserService {
 		Set<ConstraintViolation<User>> errors_password = validator.getValidator().validateProperty(m_u, "password");
 
 		errors_username.addAll(errors_password);
-		String errMsg = "";
+		StringBuilder errMsg = new StringBuilder();
 		for (ConstraintViolation<User> err : errors_username) {
-			errMsg += err.getMessage();
+			errMsg.append(err.getMessage());
 		}
-		return errMsg;
+		return errMsg.toString();
 	}
 
 	public List<Address> getUserAddresses(int userId) {
@@ -194,23 +190,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User updateUserInfo(User user, String address, String recevier, String telephone) throws Exception {
-		try {
-			User u = getUserById(user.getUserId());
-			if (!user.equals(u)) {
-				throw new Exception("用户信息已改变,请重新登录.");
-			}
-			user.setDefaultAddress(address);
-			user.setDefaultReceiver(recevier);
-			user.setDefaultTelephone(telephone);
-			int result = userDAO.updateUserInfo(user);
-			if (result != 1) {
-				throw new Exception("用户信息更新失败.");
-			}
-			user = getUserById(user.getUserId());
-			if (null == user) throw new Exception("获取用户信息失败.");
-			return user;
-		} catch (Exception ex) {
-			throw ex;
+		User u = getUserById(user.getUserId());
+		if (!user.equals(u)) {
+			throw new Exception("用户信息已改变,请重新登录.");
 		}
+		user.setDefaultAddress(address);
+		user.setDefaultReceiver(recevier);
+		user.setDefaultTelephone(telephone);
+		int result = userDAO.updateUserInfo(user);
+		if (result != 1) {
+			throw new Exception("用户信息更新失败.");
+		}
+		user = getUserById(user.getUserId());
+		if (null == user) throw new Exception("获取用户信息失败.");
+		return user;
 	}
 }

@@ -8,9 +8,9 @@ function addNewUser() {
 	var in_password2 = document.getElementById("new_password2");
 	var n_password2 = in_password2.value;
 
-	inputs['username']=n_username;
-	inputs['password']=n_password;
-	inputs['password2']=n_password2;
+	inputs['username'] = n_username;
+	inputs['password'] = n_password;
+	inputs['password2'] = n_password2;
 
 	$.ajax({
 		async: false,
@@ -21,7 +21,7 @@ function addNewUser() {
 		contentType: 'application/json;charset=UTF-8',
 		success: function (result) {
 			//没有error则return
-			if (result.err == "")
+			if (result.err === "")
 				return;
 			alert(result.err);
 		}
@@ -30,14 +30,13 @@ function addNewUser() {
 }
 
 function deleteSelected() {
-	var id_list = new Array();
+	var id_list = [];
 
 	var inputs = document.getElementsByTagName("input");
 	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].type == 'checkbox' && !inputs[i].disabled) {
-			if (inputs[i].checked) {
-				id_list.push(parseInt(inputs[i].id.substr(3)));
-			}
+		if (!('checkbox' !== inputs[i].type || inputs[i].disabled)
+			&& inputs[i].checked) {
+			id_list.push(parseInt(inputs[i].id.substr(3)));
 		}
 	}
 	if (id_list.length < 1) {
@@ -65,7 +64,7 @@ function deleteSelected() {
 function selectAll() {
 	var inputs = document.getElementsByTagName("input");
 	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].type == 'checkbox' && !inputs[i].disabled) {
+		if (inputs[i].type === 'checkbox' && !inputs[i].disabled) {
 			inputs[i].checked = true;
 		}
 	}
@@ -74,7 +73,7 @@ function selectAll() {
 function revertSelected() {
 	var inputs = document.getElementsByTagName("input");
 	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].type == 'checkbox' && !inputs[i].disabled) {
+		if (inputs[i].type === 'checkbox' && !inputs[i].disabled) {
 			inputs[i].checked = !inputs[i].checked;
 		}
 	}

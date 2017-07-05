@@ -23,15 +23,14 @@ import static org.junit.Assert.assertNotEquals;
 @Transactional
 public class OrderDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 	@Autowired
-	private SqlSessionFactoryBean sqlSessionFactory;
+	private OrderDAO orderDAO;
+	private Order o1 = new Order();
 	@Autowired
-	OrderDAO orderDAO;
+	private SqlSessionFactoryBean sqlSessionFactory;
 
-	Order o1=new Order();
-
-	private void init(){
+	private void init() {
 		o1.setAddress("来安路686");
-		o1.setTotalPrice(Float.valueOf(10));
+		o1.setTotalPrice(9f);
 		o1.setTelephone("11021218989");
 		o1.setReceiver("猫");
 		o1.setUserId(0);
@@ -40,17 +39,17 @@ public class OrderDAOTest extends AbstractTransactionalJUnit4SpringContextTests 
 		o1.setOrderId(-1);
 	}
 
-	private void cmpOrder(Order a,Order b){
-		if(null==a){
+	private void cmpOrder(Order a, Order b) {
+		if (null == a) {
 			assertNull(b);
 		}
-		assertEquals(a.getOrderId(),b.getOrderId());
-		assertEquals(a.getAddress(),b.getAddress());
-		assertEquals(a.getReceiver(),b.getReceiver());
-		assertEquals(a.getStatus(),b.getStatus());
-		assertEquals(a.getTelephone(),b.getTelephone());
-		assertEquals(a.getTotalPrice(),b.getTotalPrice());
-		assertEquals(a.getUserId(),b.getUserId());
+		assertEquals(a.getOrderId(), b.getOrderId());
+		assertEquals(a.getAddress(), b.getAddress());
+		assertEquals(a.getReceiver(), b.getReceiver());
+		assertEquals(a.getStatus(), b.getStatus());
+		assertEquals(a.getTelephone(), b.getTelephone());
+		assertEquals(a.getTotalPrice(), b.getTotalPrice());
+		assertEquals(a.getUserId(), b.getUserId());
 	}
 
 	@Test
@@ -60,14 +59,14 @@ public class OrderDAOTest extends AbstractTransactionalJUnit4SpringContextTests 
 	}
 
 	@Test
-	public void testInsertAndQueryOrder() throws Exception{
+	public void testInsertAndQueryOrder() throws Exception {
 		init();
-		int res=orderDAO.insertOrder(o1);
-		assertEquals(res,1);
-		assertNotEquals(o1.getOrderId(),-1);
+		int res = orderDAO.insertOrder(o1);
+		assertEquals(res, 1);
+		assertNotEquals(o1.getOrderId(), -1);
 
-		Order _o1=orderDAO.queryOrderByOrderId(o1.getOrderId());
+		Order _o1 = orderDAO.queryOrderByOrderId(o1.getOrderId());
 		assertNotNull(_o1);
-		cmpOrder(o1,_o1);
+		cmpOrder(o1, _o1);
 	}
 }

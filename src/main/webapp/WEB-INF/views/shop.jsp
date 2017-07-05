@@ -1,19 +1,19 @@
+<jsp:useBean id="user" scope="session" type="com.estore.object.User"/>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="tagform" uri="http://www.springframework.org/tags/form" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8"%>
-
+<%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <%
 	request.setCharacterEncoding("utf-8");
 %>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>商场</title>
-	<link rel="stylesheet" type="text/css" href="/css/default.css">
-	<link rel="stylesheet" href="/js/bootstrap/css/bootstrap.min.css">
-	<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="/js/bootstrap/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/js/product.js"></script>
+	<link rel="stylesheet" href="<c:url value="/js/lib/bootstrap/css/bootstrap.min.css"/>">
+	<script type="text/javascript" src="<c:url value="/js/lib/jquery-3.2.1.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/lib/bootstrap/js/bootstrap.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/product.js"/>"></script>
 </head>
 <body>
 
@@ -21,7 +21,7 @@
 	<li role="presentation"><a href="/user/${user.username}/profile">${user.username}</a></li>
 	<li role="presentation" class="active"><a href="/user/${user.username}">商店</a></li>
 	<li role="presentation"><a href="/user/${user.username}/orders">订单</a></li>
-	<li><a href="/logout">退出</a></li>
+	<li><a href="<c:url value="/logout"/>">退出</a></li>
 
 	<li role="presentation" class="dropdown">
 		<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
@@ -29,6 +29,7 @@
 			购物车<span class="caret"></span>
 		</a>
 		<ul class="dropdown-menu" id="cart">
+			<jsp:useBean id="cart" scope="session" type="com.estore.object.Cart"/>
 			<c:forEach var="p" items="${cart.productHashMap}">
 				<div class="btn-group btn-group-justified" role="group">
 					<a class="input-group-addon" href="/product/${p.key.productId}">${p.key.name}
@@ -37,10 +38,10 @@
 				</div>
 			</c:forEach>
 			<div class="btn-group-justified" role="group">
-				<li class="btn-group" role="group">
+				<li class="btn-group">
 					<button type="button" class="btn btn-default" onclick="clearCart()">清空</button>
 				</li>
-				<li class="btn-group" role="group">
+				<li class="btn-group">
 					<button type="button" class="btn btn-default" onclick="trySubmitCart()">结算</button>
 				</li>
 			</div>
@@ -70,7 +71,7 @@
 			<div class="col-sm-4">
 				<a href="/product/${product.productId}" class="thumbnail">
 					<img src="${product.picPath}" onerror="this.src='/upload/blank.jpg'">
-						${product.name} ￥<fmt:formatNumber pattern=".00" value="${product.price}"></fmt:formatNumber>
+						${product.name} ￥<fmt:formatNumber pattern=".00" value="${product.price}"/>
 				</a>
 			</div>
 		</c:forEach>

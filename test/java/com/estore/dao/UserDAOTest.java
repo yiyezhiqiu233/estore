@@ -12,8 +12,6 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static junit.framework.TestCase.*;
 
 @RunWith(SpringRunner.class)
@@ -22,9 +20,9 @@ import static junit.framework.TestCase.*;
 @Transactional
 public class UserDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 	@Autowired
-	private SqlSessionFactoryBean sqlSessionFactory;
+	private UserDAO userDAO;
 	@Autowired
-	UserDAO userDAO;
+	private SqlSessionFactoryBean sqlSessionFactory;
 
 	@Test
 	public void testDAOExist() throws Exception {
@@ -34,19 +32,19 @@ public class UserDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Test
 	public void testUpdateUsernameById() throws Exception {
-		String username="test_123";
-		String password="ppp";
-		String salt="783abd92";
-		int re=userDAO.insertUser(username,password,salt,2);
-		assertEquals(re,1);
+		String username = "test_123";
+		String password = "ppp";
+		String salt = "783abd92";
+		int re = userDAO.insertUser(username, password, salt, 2);
+		assertEquals(re, 1);
 
-		User u=userDAO.queryUserByUsername(username);
+		User u = userDAO.queryUserByUsername(username);
 		assertNotNull(u);
 
 		userDAO.updateUsernameById(u.getUserId(), "TEST_123");
 		User u2 = userDAO.queryUserById(u.getUserId());
 		assertNotNull(u2);
-		assertEquals(u2.getUsername(),"TEST_123");
+		assertEquals(u2.getUsername(), "TEST_123");
 	}
 
 	@Test

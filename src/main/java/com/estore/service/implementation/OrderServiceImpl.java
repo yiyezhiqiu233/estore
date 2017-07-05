@@ -21,16 +21,20 @@ import java.util.List;
 @Service("orderService")
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class OrderServiceImpl implements OrderService {
-	@Autowired
-	OrderDAO orderDAO;
-	@Autowired
-	ItemDAO itemDAO;
-	@Autowired
-	ProductService productService;
-	@Autowired
-	UserService userService;
+	private final OrderDAO orderDAO;
+	private final ItemDAO itemDAO;
+	private final ProductService productService;
+	private final UserService userService;
 
-	public Order generateNewOrder(
+	@Autowired
+	public OrderServiceImpl(OrderDAO orderDAO, ItemDAO itemDAO, ProductService productService, UserService userService) {
+		this.orderDAO = orderDAO;
+		this.itemDAO = itemDAO;
+		this.productService = productService;
+		this.userService = userService;
+	}
+
+	public void generateNewOrder(
 			int userId,
 			HashMap<Product, Integer> products,
 			String receiver,
@@ -50,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
 		if (address.length() > 255) throw new Exception("收货地址 名字过长.");
 
 		//verify products and totalPrice
-		Float totalPrice = new Float(0);
+		Float totalPrice = 0f;
 		for (Product p : products.keySet()) {
 			if (null == p) {
 				throw new Exception("商品不存在.");
@@ -61,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
 			} else if (!p.getPrice().equals(_p.getPrice())) {
 				throw new Exception("商品价格已改变");
 			}
-			if(false==p.isOnSale()){
+			if (!p.isOnSale()) {
 				throw new Exception("商品已下架.");
 			}
 			Integer amount = products.get(p);
@@ -74,7 +78,7 @@ public class OrderServiceImpl implements OrderService {
 			_p.setTotal(_p.getTotal() - amount);
 			_p = productService.updateProduct(_p);
 			if (null == _p) {
-				throw new Exception("ProductService出错,无法购买商品 " + _p.getName() + ".");
+				throw new Exception("ProductService出错,无法购买商品 " + p.getName() + ".");
 			}
 			totalPrice += amount * p.getPrice();
 		}
@@ -103,8 +107,6 @@ public class OrderServiceImpl implements OrderService {
 				throw new Exception("订单项创建失败.");
 			}
 		}
-
-		return orderDAO.queryOrderByOrderId(orderId);
 	}
 
 	public List<Order> getAllOrdersOfUser(int userId) throws Exception {
@@ -117,8 +119,8 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public List<Order> getAllOrders() throws Exception {
-		List<Order> orderList= orderDAO.queryAllOrders();
-		if(null==orderList)throw new Exception("OrderService故障:无法获取订单数据.");
+		List<Order> orderList = orderDAO.queryAllOrders();
+		if (null == orderList) throw new Exception("OrderService故障:无法获取订单数据.");
 		return orderList;
 	}
 
@@ -142,78 +144,66 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public void confirmOrder(Order order) throws Exception {
+		if (null == order) {
+			throw new Exception("订单不存在.");
+		}
+		//订单是否有变化
+		Order order1 = getOrderByOrderId(order.getOrderId());
+		if (!order.equals(order1)) {
+			throw new Exception("订单信息有变化.请刷新页面");
+		}
+		//订单是否未处理
+		if (!order.getStatus().equals("已提交"))
+			throw new Exception("订单已处理.");
+		//更新
 		try {
-			if (null == order) {
-				throw new Exception("订单不存在.");
-			}
-			//订单是否有变化
-			Order order1 = getOrderByOrderId(order.getOrderId());
-			if (!order.equals(order1)) {
-				throw new Exception("订单信息有变化.请刷新页面");
-			}
-			//订单是否未处理
-			if (!order.getStatus().equals("已提交"))
-				throw new Exception("订单已处理.");
-			//更新
-			try {
-				int result = orderDAO.updateOrderStatusByOrderId(order.getOrderId(), "已确认");
-				if (result != 1) {
-					throw new Exception("订单状态更新失败.");
-				}
-			} catch (Exception ex) {
-				throw new Exception("更新订单失败.");
-			}
-			//重新获取订单
-			order = orderDAO.queryOrderByOrderId(order.getOrderId());
-			if (null == order) {
-				throw new Exception("订单获取失败.");
+			int result = orderDAO.updateOrderStatusByOrderId(order.getOrderId(), "已确认");
+			if (result != 1) {
+				throw new Exception("订单状态更新失败.");
 			}
 		} catch (Exception ex) {
-			throw ex;
+			throw new Exception("更新订单失败.");
+		}
+		//重新获取订单
+		order = orderDAO.queryOrderByOrderId(order.getOrderId());
+		if (null == order) {
+			throw new Exception("订单获取失败.");
 		}
 	}
 
 	@Override
 	public void rejectOrder(Order order) throws Exception {
+		if (null == order) {
+			throw new Exception("订单不存在.");
+		}
+		//订单是否有变化
+		Order order1 = getOrderByOrderId(order.getOrderId());
+		if (!order.equals(order1)) {
+			throw new Exception("订单信息有变化.请刷新页面");
+		}
+		//订单是否未处理
+		if (!order.getStatus().equals("已提交"))
+			throw new Exception("订单已处理.");
+		//更新
 		try {
-			if (null == order) {
-				throw new Exception("订单不存在.");
-			}
-			//订单是否有变化
-			Order order1 = getOrderByOrderId(order.getOrderId());
-			if (!order.equals(order1)) {
-				throw new Exception("订单信息有变化.请刷新页面");
-			}
-			//订单是否未处理
-			if (!order.getStatus().equals("已提交"))
-				throw new Exception("订单已处理.");
-			//更新
-			try {
-				int result = orderDAO.updateOrderStatusByOrderId(order.getOrderId(), "已拒绝");
-				if (result != 1) {
-					throw new Exception("订单状态更新失败.");
-				}
-			} catch (Exception ex) {
-				throw new Exception("更新订单失败.");
-			}
-			//update product amount
-			List<Item> items = getAllItemsOfOrder(order.getOrderId());
-			for (Item item : items) {
-				try {
-					Product p = productService.getProductById(item.getProductId());
-					p.setTotal(p.getTotal() + item.getAmount());
-					productService.updateProduct(p);
-				} catch (Exception ex) {
-					throw ex;
-				}
-			}
-			//重新获取订单
-			order = getOrderByOrderId(order.getOrderId());
-			if (null == order) {
-				throw new Exception("订单获取失败.");
+			int result = orderDAO.updateOrderStatusByOrderId(order.getOrderId(), "已拒绝");
+			if (result != 1) {
+				throw new Exception("订单状态更新失败.");
 			}
 		} catch (Exception ex) {
-			throw ex;
+			throw new Exception("更新订单失败.");
+		}
+		//update product amount
+		List<Item> items = getAllItemsOfOrder(order.getOrderId());
+		for (Item item : items) {
+			Product p = productService.getProductById(item.getProductId());
+			p.setTotal(p.getTotal() + item.getAmount());
+			productService.updateProduct(p);
+		}
+		//重新获取订单
+		order = getOrderByOrderId(order.getOrderId());
+		if (null == order) {
+			throw new Exception("订单获取失败.");
 		}
 	}
 }

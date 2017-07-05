@@ -17,12 +17,16 @@ import java.util.Set;
 @Service("productService")
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class ProductServiceImpl implements ProductService {
-	@Autowired
-	ProductDAO productDAO;
-	@Autowired
-	private LocalValidatorFactoryBean validator;
+	private final ProductDAO productDAO;
+	private final LocalValidatorFactoryBean validator;
 
 	private static String[] defaultValidationProperties = {"name", "price", "total", "onSale"};
+
+	@Autowired
+	public ProductServiceImpl(ProductDAO productDAO, LocalValidatorFactoryBean validator) {
+		this.productDAO = productDAO;
+		this.validator = validator;
+	}
 
 	public List<Product> listAllProducts() throws Exception {
 		List<Product> productList = productDAO.queryAllProducts();
@@ -34,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
 		List<Product> products = new ArrayList<Product>();
 		try {
 			for (Product p : listAllProducts()) {
-				if (true == p.isOnSale()) {
+				if (p.isOnSale()) {
 					products.add(p);
 				}
 			}
@@ -47,18 +51,14 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public List<Product> listAllOnsaleProducts(String keyword) throws Exception {
-		try {
-			if (null == keyword || keyword.equals("")) {
-				return listAllOnsaleProducts();
-			}
-			List<Product>productList=searchOnSaleProducts(keyword);
-			if(null==productList){
-				throw new Exception("搜索失败.");
-			}
-			return productList;
-		} catch (Exception ex) {
-			throw ex;
+		if (null == keyword || keyword.equals("")) {
+			return listAllOnsaleProducts();
 		}
+		List<Product> productList = searchOnSaleProducts(keyword);
+		if (null == productList) {
+			throw new Exception("搜索失败.");
+		}
+		return productList;
 	}
 
 	public Product getProductById(int id) {
@@ -118,21 +118,18 @@ public class ProductServiceImpl implements ProductService {
 				errors.addAll(validator.getValidator().validateProperty(m_product, property));
 		}
 
-		String errMsg = "";
-		for (ConstraintViolation<Product> err : errors) {
-			errMsg += err.getMessage();
+		StringBuilder errMsg = new StringBuilder();
+		if (errors != null) {
+			for (ConstraintViolation<Product> err : errors) {
+				errMsg.append(err.getMessage());
+			}
 		}
-		return errMsg;
+		return errMsg.toString();
 	}
 
 	public List<Product> searchOnSaleProducts(String keyword) throws Exception {
 		if (null == keyword || keyword.equals("")) {
-			try {
-				List<Product> productList = listAllOnsaleProducts();
-				return productList;
-			} catch (Exception ex) {
-				throw ex;
-			}
+			return listAllOnsaleProducts();
 		}
 		List<Product> productList = productDAO.queryLikeOnSaleProducts(keyword);
 		if (null == productList) throw new Exception("ProductService故障:无法搜索 " + keyword + ".");
